@@ -468,22 +468,38 @@ class IncidentAgentCoordinator:
         stage_callback: Optional[Callable[[str, str, str], None]] = None,
     ) -> InvestigationContext:
         """Synchronous wrapper for investigate_async."""
-        try:
-            loop = asyncio.get_event_loop()
-        except RuntimeError:
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
+        import concurrent.futures
 
-        if loop.is_running():
-            import nest_asyncio
-            nest_asyncio.apply()
-            return loop.run_until_complete(
-                self.investigate_async(incident, stage_callback)
-            )
+        def _run_in_new_loop():
+            new_loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(new_loop)
+            try:
+                return new_loop.run_until_complete(
+                    self.investigate_async(incident, stage_callback)
+                )
+            finally:
+                new_loop.close()
+
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+
+        if loop is not None and loop.is_running():
+            # If an event loop is already running (e.g. inside Streamlit),
+            # try nest_asyncio if installed, else execute in a dedicated thread.
+            try:
+                import nest_asyncio
+                nest_asyncio.apply()
+                return loop.run_until_complete(
+                    self.investigate_async(incident, stage_callback)
+                )
+            except Exception:
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                    future = executor.submit(_run_in_new_loop)
+                    return future.result()
         else:
-            return loop.run_until_complete(
-                self.investigate_async(incident, stage_callback)
-            )
+            return _run_in_new_loop()
 
 
 # Default coordinator instance
