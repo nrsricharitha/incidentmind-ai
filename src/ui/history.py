@@ -42,12 +42,14 @@ def render_history() -> None:
         table_rows.append(
             {
                 "ID": inc.incident_id,
+                "Timestamp": inc.timestamp,
                 "Service": inc.service,
                 "Severity": inc.severity,
                 "Title": inc.title,
                 "Status": inc.status,
                 "Runbook": inc.runbook_id or "N/A",
-                "Timestamp": inc.timestamp,
+                "Root Cause": inc.root_cause[:60] + "..." if inc.root_cause and len(inc.root_cause) > 60 else (inc.root_cause or "In progress"),
+                "Resolution": inc.resolution[:60] + "..." if inc.resolution and len(inc.resolution) > 60 else (inc.resolution or "Not yet resolved"),
             }
         )
 

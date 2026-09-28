@@ -2,6 +2,9 @@
   "id": "CACHE-003",
   "title": "Cache Service Unavailable",
   "service": "cache-service",
+  "incident_type": "Cache Cluster Degradation",
+  "severity": "CRITICAL",
+  "likely_root_cause": "Redis memory exhaustion exceeding maxmemory limit causing connection refusals and latency spikes",
   "symptoms": [
     "cache connection refused",
     "elevated response latency",

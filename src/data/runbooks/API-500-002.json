@@ -2,6 +2,9 @@
   "id": "API-500-002",
   "title": "Payment API Internal Server Errors",
   "service": "payment-api",
+  "incident_type": "API Service Failure (HTTP 5xx)",
+  "severity": "CRITICAL",
+  "likely_root_cause": "Downstream database saturation or third-party payment gateway timeout causing cascading 500 errors",
   "symptoms": [
     "HTTP 500",
     "internal server error",

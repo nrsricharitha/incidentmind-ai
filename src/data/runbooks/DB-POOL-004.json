@@ -2,6 +2,9 @@
   "id": "DB-POOL-004",
   "title": "Database Connection Pool Exhaustion",
   "service": "database",
+  "incident_type": "Database Connection Saturation",
+  "severity": "HIGH",
+  "likely_root_cause": "Unclosed database sessions or connection leaks exhausting connection pool limits under load",
   "symptoms": [
     "connection acquisition timeout",
     "pool exhausted",

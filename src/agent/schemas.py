@@ -58,8 +58,15 @@ class Runbook(BaseModel):
     id: str = Field(description="Runbook identifier e.g. DB-POOL-004")
     title: str = Field(description="Runbook title")
     service: str = Field(description="Associated service or system component")
+    incident_type: str = Field(
+        default="System Degradation", description="Categorized incident failure type"
+    )
     symptoms: List[str] = Field(
         default_factory=list, description="Known symptoms addressed by this runbook"
+    )
+    likely_root_cause: str = Field(
+        default="Underlying resource or dependency failure",
+        description="Most probable technical root cause",
     )
     diagnostic_steps: List[str] = Field(
         default_factory=list, description="Step-by-step diagnostic actions"
@@ -67,6 +74,7 @@ class Runbook(BaseModel):
     recommended_remediation: List[str] = Field(
         default_factory=list, description="Safe resolution and remediation actions"
     )
+    severity: str = Field(default="HIGH", description="Default operational severity")
     related_runbooks: List[str] = Field(
         default_factory=list, description="Related runbook references"
     )

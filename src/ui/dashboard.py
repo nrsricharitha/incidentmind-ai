@@ -9,24 +9,40 @@ from src.memory.memory_service import MemoryService
 
 
 def render_dashboard() -> None:
-    """Render the operations dashboard."""
+    """Render the concise operations dashboard."""
+    # Prominent Differentiator Callout Banner
     st.markdown(
         """
-        <div class="brand-banner">
-            <h1 class="brand-title">🛡️ IncidentMind AI Operations Dashboard</h1>
-            <div class="brand-subtitle">
-                Autonomous SRE Assistant powered by Microsoft Agent Framework, Groq LLM & Hindsight Long-Term Memory
+        <div class="brand-banner" style="padding: 18px 24px; margin-bottom: 20px;">
+            <div style="font-size: 1.15rem; font-weight: 700; color: #58a6ff; margin-bottom: 6px;">
+                💡 The IncidentMind AI Differentiator
+            </div>
+            <div style="font-size: 0.95rem; color: #c9d1d9; line-height: 1.5;">
+                Traditional incident bots ask: <i>"What is broken right now?"</i><br>
+                <b>IncidentMind asks:</b> <i>"What happened before, what worked, and how does that experience apply to this incident?"</i>
             </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    # Fetch real stats
+    # Fetch real stats from SQLite and Hindsight
+    incidents = db.list_incidents(limit=100)
     stats = incident_service.get_dashboard_stats()
-    memory_service = MemoryService()
-    hindsight_ok, hindsight_msg = memory_service.check_connection()
-    groq_ok = settings.is_groq_configured
+    
+    # Compute metrics
+    total_count = len(incidents)
+    active_investigations = len([i for i in incidents if i.status == "INVESTIGATING"])
+    recent_resolutions = len([i for i in incidents if i.status == "RESOLVED"])
+    
+    # Severity distribution
+    sev_counts = {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0}
+    for inc in incidents:
+        s = inc.severity.upper()
+        if s in sev_counts:
+            sev_counts[s] += 1
+        else:
+            sev_counts["MEDIUM"] += 1
 
     # Top KPI Metrics row
     col1, col2, col3, col4, col5 = st.columns(5)
@@ -44,7 +60,7 @@ def render_dashboard() -> None:
         st.markdown(
             f"""
             <div class="metric-card">
-                <div class="metric-value" style="color: #f85149;">{stats['critical']}</div>
+                <div class="metric-value" style="color: #f85149;">{sev_counts['CRITICAL'] + sev_counts['HIGH']}</div>
                 <div class="metric-label">Critical / High</div>
             </div>
             """,
@@ -54,7 +70,7 @@ def render_dashboard() -> None:
         st.markdown(
             f"""
             <div class="metric-card">
-                <div class="metric-value" style="color: #d29922;">{stats['active']}</div>
+                <div class="metric-value" style="color: #d29922;">{active_investigations}</div>
                 <div class="metric-label">Active Investigating</div>
             </div>
             """,
@@ -64,23 +80,18 @@ def render_dashboard() -> None:
         st.markdown(
             f"""
             <div class="metric-card">
-                <div class="metric-value" style="color: #3fb950;">{stats['resolved']}</div>
-                <div class="metric-label">Resolved</div>
+                <div class="metric-value" style="color: #3fb950;">{recent_resolutions}</div>
+                <div class="metric-label">Recent Resolutions</div>
             </div>
             """,
             unsafe_allow_html=True,
         )
     with col5:
-        hindsight_badge = (
-            "<span style='color: #3fb950;'>Active</span>"
-            if hindsight_ok
-            else "<span style='color: #8b949e;'>Not Set</span>"
-        )
         st.markdown(
             f"""
             <div class="metric-card">
-                <div class="metric-value" style="color: #d2a8ff;">🧠</div>
-                <div class="metric-label">Hindsight: {hindsight_badge}</div>
+                <div class="metric-value" style="color: #d2a8ff;">🧠 {settings.hindsight_bank_id}</div>
+                <div class="metric-label">Hindsight Memory Bank</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -88,90 +99,55 @@ def render_dashboard() -> None:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Subsystems & Connectivity Status
-    st.markdown("### 🔌 Core Subsystem Status")
-    sc1, sc2, sc3 = st.columns(3)
+    # Operational Breakdown: Severity & Memory Activity
+    oc1, oc2 = st.columns([1, 1])
 
-    with sc1:
-        st.markdown(
-            """
-            <div class="ops-card">
-                <div class="ops-card-header">
-                    <span>🤖 Microsoft Agent Framework</span>
-                    <span class="badge-healthy">Ready</span>
-                </div>
-                <p style="color: #8b949e; font-size: 0.85rem; margin-bottom: 6px;">
-                    Orchestrates autonomous multi-tool invocation, memory context providers, and deterministic inspection pipelines.
-                </p>
-                <div style="font-size: 0.8rem; color: #58a6ff;">
-                    Integration: <code>agent-framework-core v1.19</code>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    with sc2:
-        groq_badge = (
-            '<span class="badge-healthy">Connected</span>'
-            if groq_ok
-            else '<span class="badge-high">Key Missing</span>'
-        )
+    with oc1:
+        st.markdown("### 📊 Severity Distribution")
         st.markdown(
             f"""
             <div class="ops-card">
-                <div class="ops-card-header">
-                    <span>⚡ Groq LLM Inference</span>
-                    {groq_badge}
-                </div>
-                <p style="color: #8b949e; font-size: 0.85rem; margin-bottom: 6px;">
-                    Ultra-fast inference provider delivering reasoning and incident synthesis.
-                </p>
-                <div style="font-size: 0.8rem; color: #58a6ff;">
-                    Model: <code>{settings.groq_model}</code>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.88rem;">
+                    <div>
+                        <span class="badge-critical">CRITICAL</span>: <b>{sev_counts['CRITICAL']}</b> incident(s)
+                    </div>
+                    <div>
+                        <span class="badge-high">HIGH</span>: <b>{sev_counts['HIGH']}</b> incident(s)
+                    </div>
+                    <div>
+                        <span class="badge-healthy">MEDIUM</span>: <b>{sev_counts['MEDIUM']}</b> incident(s)
+                    </div>
+                    <div>
+                        <span class="badge-memory">LOW</span>: <b>{sev_counts['LOW']}</b> incident(s)
+                    </div>
                 </div>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-    with sc3:
-        hs_badge = (
-            '<span class="badge-healthy">Connected</span>'
-            if hindsight_ok
-            else '<span class="badge-high">Setup Required</span>'
-        )
+    with oc2:
+        st.markdown("### 🧠 Memory & Learning Activity")
         st.markdown(
             f"""
             <div class="ops-card">
-                <div class="ops-card-header">
-                    <span>🧠 Hindsight Long-Term Memory</span>
-                    {hs_badge}
-                </div>
-                <p style="color: #8b949e; font-size: 0.85rem; margin-bottom: 6px;">
-                    Persistent cross-session experience bank retaining root causes and successful remediations.
-                </p>
-                <div style="font-size: 0.8rem; color: #a371f7;">
-                    Memory Bank: <code>{settings.hindsight_bank_id}</code>
+                <div style="font-size: 0.88rem; color: #c9d1d9; line-height: 1.6;">
+                    <b>Memory Bank:</b> <code>{settings.hindsight_bank_id}</code><br>
+                    <b>Retention Mode:</b> Automatic on incident resolution<br>
+                    <b>Learning Loop:</b> Retains failure patterns, symptoms & resolutions for cross-session recall.
                 </div>
             </div>
             """,
             unsafe_allow_html=True,
         )
-
-    # Core Value Prop Banner
-    st.info(
-        "💡 **The IncidentMind Differentiator:** Traditional SRE bots only ask *'What is broken right now?'* "
-        "IncidentMind AI uses **Hindsight Long-Term Memory** to ask: *'What happened before, what worked, and how does that experience apply to this incident?'*"
-    )
 
     # Recent Incidents Table
     st.markdown("### 📋 Recent Operational Incidents (Local SQLite Database)")
-    incidents = db.list_incidents(limit=10)
+    recent_incidents = db.list_incidents(limit=10)
 
-    if incidents:
+    if recent_incidents:
         table_data = []
-        for inc in incidents:
+        for inc in recent_incidents:
             table_data.append(
                 {
                     "Incident ID": inc.incident_id,
@@ -188,9 +164,11 @@ def render_dashboard() -> None:
     else:
         st.markdown(
             """
-            <div style="background: #161b22; border: 1px dashed #30363d; border-radius: 8px; padding: 30px; text-align: center; color: #8b949e;">
-                <p style="margin: 0; font-size: 1rem;">No incidents recorded yet in the local database.</p>
-                <p style="margin: 6px 0 0 0; font-size: 0.85rem;">Head over to <b>Demo Mode</b> to run Day 1 / Day 30 scenarios or launch an investigation in <b>Investigate Incident</b>.</p>
+            <div style="background: #161b22; border: 1px dashed #30363d; border-radius: 8px; padding: 24px; text-align: center; color: #8b949e;">
+                <p style="margin: 0; font-size: 1rem; color: #c9d1d9;">No incidents recorded yet in the local database.</p>
+                <p style="margin: 6px 0 0 0; font-size: 0.85rem;">
+                    Switch to <b>Demo Mode</b> in the top navigation to run the Day 1 / Day 30 scenarios, or submit an incident in <b>Investigate Incident</b>.
+                </p>
             </div>
             """,
             unsafe_allow_html=True,

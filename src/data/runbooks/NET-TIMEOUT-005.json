@@ -2,6 +2,9 @@
   "id": "NET-TIMEOUT-005",
   "title": "Gateway Ingress Timeout & Backpressure",
   "service": "api-gateway",
+  "incident_type": "Gateway Ingress Backpressure",
+  "severity": "CRITICAL",
+  "likely_root_cause": "Downstream worker backlog or unhandled ingress burst causing socket timeouts and 504 responses",
   "symptoms": [
     "504 Gateway Timeout",
     "upstream request timeout",

@@ -192,5 +192,73 @@ code, pre, .stCode, [data-testid="stMarkdownContainer"] code {
     max-height: 280px;
     overflow-y: auto;
 }
+
+/* Top Horizontal Navigation Styling */
+.top-nav-container {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.top-nav-brand {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #21262d;
+}
+
+/* Top Navigation Buttons */
+div[data-testid="stHorizontalBlock"] button[kind="primary"] {
+    background: linear-gradient(135deg, #1f6feb 0%, #238636 100%) !important;
+    border: 1px solid #388bfd !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 0 10px rgba(31, 111, 235, 0.35) !important;
+}
+
+div[data-testid="stHorizontalBlock"] button[kind="secondary"] {
+    background: #0d1117 !important;
+    border: 1px solid #30363d !important;
+    color: #c9d1d9 !important;
+    font-weight: 500 !important;
+    border-radius: 6px !important;
+    transition: all 0.2s ease !important;
+}
+
+div[data-testid="stHorizontalBlock"] button[kind="secondary"]:hover {
+    border-color: #58a6ff !important;
+    color: #58a6ff !important;
+    background: #161b22 !important;
+}
+
+/* Secondary Sidebar Navigation Buttons */
+section[data-testid="stSidebar"] button[kind="primary"] {
+    background: rgba(88, 166, 255, 0.15) !important;
+    border: 1px solid #58a6ff !important;
+    color: #58a6ff !important;
+    font-weight: 700 !important;
+    border-radius: 6px !important;
+}
+
+section[data-testid="stSidebar"] button[kind="secondary"] {
+    background: transparent !important;
+    border: 1px solid #21262d !important;
+    color: #8b949e !important;
+    text-align: left !important;
+    border-radius: 6px !important;
+    transition: all 0.2s ease !important;
+}
+
+section[data-testid="stSidebar"] button[kind="secondary"]:hover {
+    border-color: #30363d !important;
+    color: #f0f6fc !important;
+    background: #161b22 !important;
+}
 </style>
 """

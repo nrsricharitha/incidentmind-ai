@@ -2,6 +2,9 @@
   "id": "AUTH-401-001",
   "title": "Authentication Service Token Validation Failure",
   "service": "user-service",
+  "incident_type": "Authentication & Identity Failure",
+  "severity": "HIGH",
+  "likely_root_cause": "JWKS key cache expiration or NTP clock drift causing invalid token signatures",
   "symptoms": [
     "HTTP 401 Unauthorized",
     "token validation failure",
