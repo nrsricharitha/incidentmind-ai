@@ -22,6 +22,9 @@ class MemoryService:
         self.api_key = api_key or settings.hindsight_api_key
         self.api_url = api_url or settings.hindsight_api_url
         self._client: Optional[Hindsight] = None
+        self._cached_key: Optional[str] = None
+        self._cached_url: Optional[str] = None
+        self._ensured_banks: set[str] = set()
 
     def _get_client(self) -> Hindsight:
         """Resolve and cache a Hindsight client instance."""
@@ -31,16 +34,36 @@ class MemoryService:
 
         if not key:
             raise ValueError(
-                "Hindsight API key is missing. Set HINDSIGHT_API_KEY in .env or sidebar settings."
+                "Hindsight API key is missing. Set HINDSIGHT_API_KEY in .env or environment variables."
             )
 
-        if self._client is None or self._client.api_client.configuration.api_key.get("ApiKeyAuth") != key:
+        if self._client is None or self._cached_key != key or self._cached_url != url:
             self._client = Hindsight(
                 base_url=url,
                 api_key=key,
                 timeout=25.0,
             )
+            self._cached_key = key
+            self._cached_url = url
         return self._client
+
+    def _ensure_bank(self, client: Hindsight, bank_id: str) -> None:
+        """Ensure bank exists on first use (best effort)."""
+        if bank_id in self._ensured_banks:
+            return
+        try:
+            client.create_bank(
+                bank_id=bank_id,
+                name=bank_id,
+                mission=(
+                    "IncidentMind AI operational memory bank. Retains and recalls technical incidents, "
+                    "failure modes, observable symptoms, affected services, root causes, executed runbooks, "
+                    "and successful resolution steps to assist incident responders."
+                ),
+            )
+        except Exception as e:
+            logger.debug("Bank ensure for %s: %s", bank_id, e)
+        self._ensured_banks.add(bank_id)
 
     def check_connection(self) -> Tuple[bool, str]:
         """Verify truthful connectivity to Hindsight API.
@@ -89,6 +112,7 @@ class MemoryService:
         try:
             client = self._get_client()
             bank = self.bank_id or settings.hindsight_bank_id
+            self._ensure_bank(client, bank)
 
             logger.info("Recalling Hindsight memories for bank '%s' query: '%s'", bank, query[:60])
             response = client.recall(
@@ -151,6 +175,7 @@ class MemoryService:
 
         client = self._get_client()
         bank = self.bank_id or settings.hindsight_bank_id
+        self._ensure_bank(client, bank)
 
         # Construct high-density semantic content for Hindsight retention
         content_lines = [
