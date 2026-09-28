@@ -1,0 +1,25 @@
+{
+  "id": "AUTH-401-001",
+  "title": "Authentication Service Token Validation Failure",
+  "service": "user-service",
+  "symptoms": [
+    "HTTP 401 Unauthorized",
+    "token validation failure",
+    "JWKS fetch timeout",
+    "expired public keys",
+    "identity provider timeout"
+  ],
+  "diagnostic_steps": [
+    "Check OAuth / IdP endpoint availability and JWKS endpoint response latency.",
+    "Verify system clock synchronization (NTP drift) across auth worker nodes.",
+    "Inspect in-memory key cache TTL and reload mechanisms."
+  ],
+  "recommended_remediation": [
+    "Manually trigger JWKS key cache refresh on user-service instances.",
+    "Synchronize NTP servers across cluster if clock skew exceeds 120 seconds.",
+    "Switch to secondary IdP gateway if primary identity provider is degraded."
+  ],
+  "related_runbooks": [
+    "API-500-002"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "id": "CACHE-003",
+  "title": "Cache Service Unavailable",
+  "service": "cache-service",
+  "symptoms": [
+    "cache connection refused",
+    "elevated response latency",
+    "fallback behavior",
+    "Redis connection timeout",
+    "cache cluster failover",
+    "OOM command not allowed"
+  ],
+  "diagnostic_steps": [
+    "Check Redis/Memcached cluster node health and replication lag.",
+    "Inspect memory utilization and evictions rate on cache nodes.",
+    "Inspect network throughput and TCP connection count to cache cluster.",
+    "Verify whether application fallback to primary database is holding without overwhelming DB."
+  ],
+  "recommended_remediation": [
+    "If cache memory is exhausted, flush non-critical cache namespaces or increase node memory.",
+    "Trigger master failover to replica if primary node is unresponsive.",
+    "Enable local in-memory fallback cache in application instances to alleviate pressure.",
+    "Restart degraded cache nodes sequentially.",
+    "Verify cache hit ratio returns to >90% before closing incident."
+  ],
+  "related_runbooks": [
+    "DB-POOL-004",
+    "API-500-002"
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "id": "DB-POOL-004",
+  "title": "Database Connection Pool Exhaustion",
+  "service": "database",
+  "symptoms": [
+    "connection acquisition timeout",
+    "pool exhausted",
+    "request latency increase",
+    "failed to acquire database connection",
+    "failed to obtain DB connection",
+    "database connection timeout",
+    "HikariPool connection timeout",
+    "too many clients already"
+  ],
+  "diagnostic_steps": [
+    "Inspect database connection pool utilization metric (active vs max connections).",
+    "Check for unclosed connections, hanging transactions, or long-running queries.",
+    "Verify database server CPU, memory, and max_connections limit.",
+    "Check recent application deployments for unclosed database sessions or connection leaks.",
+    "Inspect network latency and firewall states between application and database cluster."
+  ],
+  "recommended_remediation": [
+    "Address identified connection leak in application code; release lingering idle transactions.",
+    "Temporarily increase pool size (max_connections) if database server capacity permits.",
+    "Adjust connection timeout and idle timeout parameters to prevent indefinite blocking.",
+    "Gracefully restart affected service pods sequentially only after confirming safe failover conditions.",
+    "Verify pool recovery via Prometheus metrics before marking incident resolved."
+  ],
+  "related_runbooks": [
+    "API-500-002",
+    "NET-TIMEOUT-005"
+  ]
+}

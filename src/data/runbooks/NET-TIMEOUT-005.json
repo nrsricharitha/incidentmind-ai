@@ -1,0 +1,26 @@
+{
+  "id": "NET-TIMEOUT-005",
+  "title": "Gateway Ingress Timeout & Backpressure",
+  "service": "api-gateway",
+  "symptoms": [
+    "504 Gateway Timeout",
+    "upstream request timeout",
+    "connection reset by peer",
+    "high request queue depth",
+    "socket timeout exception"
+  ],
+  "diagnostic_steps": [
+    "Identify upstream microservice causing the slowest p99 latency response.",
+    "Verify ingress controller socket buffers and active HTTP/2 connections.",
+    "Check for DDoS or unusual traffic spikes targeting specific routes."
+  ],
+  "recommended_remediation": [
+    "Apply rate limiting at API gateway on offending IP blocks or abusive API keys.",
+    "Increase gateway proxy read timeout if backend long-running processing is expected.",
+    "Route traffic away from degraded cluster zones to healthy replicas."
+  ],
+  "related_runbooks": [
+    "API-500-002",
+    "DB-POOL-004"
+  ]
+}

@@ -1,0 +1,11 @@
+agent-framework-core>=1.19.0
+agent-framework-openai>=1.14.4
+hindsight-client>=0.10.1
+hindsight-agent-framework>=0.1.0
+groq>=0.37.0
+streamlit>=1.40.0
+pydantic>=2.10.0
+python-dotenv>=1.0.0
+pandas>=2.0.0
+pytest>=8.0.0
+aiohttp>=3.9.0

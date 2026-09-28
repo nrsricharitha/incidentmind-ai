@@ -1,0 +1,31 @@
+{
+  "id": "API-500-002",
+  "title": "Payment API Internal Server Errors",
+  "service": "payment-api",
+  "symptoms": [
+    "HTTP 500",
+    "internal server error",
+    "upstream dependency failures",
+    "timeout spikes",
+    "payment gateway connection reset",
+    "502 Bad Gateway upstream"
+  ],
+  "diagnostic_steps": [
+    "Inspect Payment API service logs for uncaught exceptions and 5xx error spikes.",
+    "Inspect downstream database and cache connectivity metrics.",
+    "Verify health of third-party payment gateways (Stripe, Adyen, PayPal).",
+    "Inspect ingress controller error rate and upstream timeout configurations.",
+    "Check circuit breaker status for downstream microservices."
+  ],
+  "recommended_remediation": [
+    "Engage fallback payment gateway or circuit breaker to prevent cascading timeouts.",
+    "Scale payment-api replica count if CPU or request concurrency threshold is exceeded.",
+    "Roll back recent payment service release if error spike correlates with deployment.",
+    "Notify merchants and upstream partners according to SLA tier guidelines.",
+    "Monitor 5xx error rates until they return below 0.1% baseline."
+  ],
+  "related_runbooks": [
+    "DB-POOL-004",
+    "CACHE-003"
+  ]
+}
